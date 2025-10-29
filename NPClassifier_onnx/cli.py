@@ -1,5 +1,5 @@
 import argparse
-from NPClassifier.npc import NPClassifier
+from NPClassifier_onnx.npc import NPClassifier
 
 def main():
     parser = argparse.ArgumentParser(description='使用 NPClassifier 进行推理')

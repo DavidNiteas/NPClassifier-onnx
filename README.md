@@ -1,6 +1,6 @@
-# NPClassifier
+# NPClassifier-onnx
 
-NPClassifier是一个用于分类天然产物的机器学习工具，它可以根据分子结构预测天然产物的类别、超类和生物合成途径。
+NPClassifier 是一个用于分类天然产物（Natural Products, NP）的工具，主要基于机器学习模型和特定的分类学方法。它能够根据化学结构（如 SMILES 表示法）对天然产物进行分类，并提供详细的分类层次信息。该工具支持本地部署，当官方途径是通过 Docker 和 TensorFlow 提供服务。本项目基于NPClassifier官方公开的TensorFlow模型权重，基于通用的ONNX格式重写了整个模型的推理过程，打包为一个可pip按照的Python代码库，并提供一个CLI应用程序入口。
 
 ## 功能特点
 
@@ -12,18 +12,10 @@ NPClassifier是一个用于分类天然产物的机器学习工具，它可以�
 
 ## 安装
 
-### 从源码安装
-
 ```bash
 git clone https://github.com/npclassifier/NPClassifier.git
 cd NPClassifier
-pip install -e .
-```
-
-### 使用pip安装
-
-```bash
-pip install NPClassifier
+pip install .
 ```
 
 ## 使用方法
@@ -89,9 +81,45 @@ NPClassifier支持以下分子格式：
 
 ## 模型
 
-NPClassifier使用预训练的ONNX模型进行预测。模型文件应包含：
-- `.onnx`文件：模型权重
-- `index*.json`文件：标签映射
+NPClassifier使用预训练的ONNX模型进行预测。模型文件应包含以下结构：
+
+```
+model/np_classifier/
+├── class_model.onnx      # 类别分类模型
+├── pathway_model.onnx    # 通路分类模型
+├── superclass_model.onnx # 超类分类模型
+└── index_v1.json         # 标签映射文件
+```
+
+### 模型文件说明
+
+- **class_model.onnx**: 用于预测天然产物的具体类别（如生物碱、萜类等）
+- **pathway_model.onnx**: 用于预测天然产物的生物合成通路
+- **superclass_model.onnx**: 用于预测天然产物的大类（如聚酮化合物、苯丙素类等）
+- **index_v1.json**: 包含所有模型的标签映射关系，将模型输出的数字索引转换为可读的类别名称
+
+### 模型使用
+
+在初始化NPClassifier时，需要指定模型目录路径：
+
+```python
+from NPClassifier import NPClassifier
+
+# 指定模型目录
+model_dir = "/path/to/model/np_classifier"
+
+# 初始化分类器，指定要使用的模型类型
+classifier = NPClassifier(model_dir, ["class", "pathway", "superclass"])
+```
+
+### 模型输出
+
+每个模型会输出预测概率和对应的标签：
+
+- **概率值**: 0到1之间的浮点数，表示预测的置信度
+- **标签**: 对应的类别名称，从index_v1.json文件中映射而来
+
+通过设置`top_k`参数，可以获取每个模型的前k个最可能预测结果。
 
 ## 依赖项
 
@@ -103,32 +131,7 @@ NPClassifier使用预训练的ONNX模型进行预测。模型文件应包含：
 - openpyxl
 - tables
 
-## 开发
-
-### 安装开发依赖
-
-```bash
-pip install -e ".[dev]"
-```
-
-### 运行测试
-
-```bash
-pytest
-```
-
-### 代码格式化
-
-```bash
-black NPClassifier/
-```
-
-### 代码检查
-
-```bash
-flake8 NPClassifier/
-```
-
 ## 引用
 
-如果您在研究中使用了NPClassifier，请引用相关论文。
+如果您在研究中使用了NPClassifier-ONNX，请引用相关论文。
+- [NPClassifier 论文](https://pubs.acs.org/doi/10.1021/acs.jnatprod.1c00399)

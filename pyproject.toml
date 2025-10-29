@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "NPClassifier"
+name = "NPClassifier_onnx"
 version = "0.1.0"
 description = "NPClassifier的ONNX推理库"
 readme = "README.md"
@@ -34,4 +34,4 @@ dependencies = [
 npc = "NPClassifier.cli:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["NPClassifier"]
+packages = ["NPClassifier_onnx"]
