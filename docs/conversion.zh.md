@@ -3,9 +3,9 @@
 本项目**不分发** NPClassifier 模型权重。它提供一条本地、可复现的路径，把官方
 Keras HDF5 模型转换成推理所需的 ONNX 文件。
 
-官方 V1 模型是全连接网络。`tools/convert/convert_npc.py` 直接读取 HDF5 中的
-Keras `model_config` 和权重，用 NumPy 与 ONNX 构建等价图，不需要 TensorFlow，
-从而避开旧的 TensorFlow 2.3 转换环境。
+官方 V1 模型是全连接网络。`npc convert` 直接读取 HDF5 中的 Keras
+`model_config` 和权重，用 NumPy 与 ONNX 构建等价图，不需要 TensorFlow，从而
+避开旧的 TensorFlow 2.3 转换环境。
 
 ## 输入文件
 
@@ -36,12 +36,15 @@ pip install -r tools/convert/requirements.txt
 ## 执行转换
 
 ```bash
-python tools/convert/convert_npc.py \
+npc convert \
   --hdf5-dir /path/to/hdf5 \
   --index /path/to/index_v1.json \
   --output-dir /path/to/model_dir \
   --verify
 ```
+
+从源码树直接运行、未安装包时，兼容脚本 `tools/convert/convert_npc.py`
+接受相同参数。
 
 输出目录包含：
 
@@ -74,19 +77,21 @@ manifest.json
 如果已有可信的参考 ONNX 导出，可以与新转换结果对比：
 
 ```bash
-python tools/convert/verify_parity.py \
+npc verify \
   --reference-dir /path/to/reference \
   --model-dir /path/to/model_dir \
   --models class,pathway,superclass \
   --samples 16
 ```
 
+从源码树直接运行、未安装包时，`tools/convert/verify_parity.py` 接受相同参数。
+
 工具会为每个模型输出一行 JSON，包含 `max_abs_diff`、top-k 一致性和 `status`。
 超过 `--atol`（默认 `1e-5`）时退出码为 1。随机指纹可能让模型处于训练分布之外，
 因此 top-k 检查只统计有明确非零赢家的行；数值一致性仍检查所有行。
 
-用本工具转换官方 V1 模型，并与参考导出对比时，随机指纹批次上的最大绝对误差
-低于 `1e-5`，top-1 标签一致。
+请记录你实际使用的转换结果的 `max_abs_diff`、top-k 一致性和 `status`；
+本仓库不把某次环境的对比结果当作所有环境的通用结论。
 
 ## Docker
 

@@ -92,7 +92,7 @@ frame.to_csv("results.csv")
 ## 5. 命令行
 
 ```bash
-npc \
+npc predict \
   --model-dir /path/to/model_dir \
   --input molecules.csv \
   --column smiles \
@@ -101,20 +101,21 @@ npc \
   --output results.csv
 ```
 
-输出格式由输出文件扩展名决定：`.csv`、`.tsv`、`.xlsx`、`.pkl` 或 `.parquet`。
-Excel 输出需要 `[excel]` 额外依赖。加 `--quiet` 可关闭进度条和摘要。
+旧版不带 `predict` 的写法仍然兼容。输出格式由输出文件扩展名决定：`.csv`、
+`.tsv`、`.xlsx`、`.pkl` 或 `.parquet`。Excel 输出需要 `[excel]` 额外依赖。
+加 `--quiet` 可关闭进度条和摘要。
 
 要使用 NPClassifier 官方的决策逻辑而不是 top-k 分数：
 
 ```bash
-npc --model-dir /path/to/model_dir --input molecules.csv --mode official
+npc predict --model-dir /path/to/model_dir --input molecules.csv --mode official
 ```
 
 `--mode official` 使用 class 0.1、superclass 0.3、pathway 0.5，并执行官方层级
 投票；详见[官方模式](zh/official-mode.md)。
 
 同时兼容 `--model_dir`、`--input_file`、`--tag_column`、`--batch_size`、
-`--top_k` 等旧写法。
+`--top_k` 等旧写法。`convert`、`verify`、`doctor` 子命令见[命令行接口](zh/cli.md)。
 
 ## 6. 输出列
 
@@ -138,8 +139,8 @@ superclass_model_prob_1, superclass_model_label_1, ...
 - 加载器会校验 ONNX 输出宽度与 `index_v1.json` 的标签数；不一致时会给出
   明确错误。
 
-## 8. 性能
+## 8. 运行时说明
 
-ONNX Runtime 默认使用 CPU。处理大表时可以增大 `--batch-size`，直到内存或
-延迟成为瓶颈。指纹生成通常是主要开销；如果需要重复推理，可以预先计算并
-复用指纹。
+ONNX Runtime 默认使用 CPU。`--batch-size` 影响内存占用；公开文档不提供运行时
+基准，请在本地机器和输入分布上自行测量。同一批分子需要重复分类时，可以缓存
+指纹。

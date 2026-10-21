@@ -13,6 +13,7 @@ FROM python:3.11-slim
 WORKDIR /app
 COPY tools/convert/requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
+COPY NPClassifier_onnx /app/NPClassifier_onnx
 COPY tools/convert /app/tools/convert
 
 ENTRYPOINT ["python", "/app/tools/convert/convert_npc.py"]

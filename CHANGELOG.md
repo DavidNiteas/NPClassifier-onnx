@@ -7,8 +7,10 @@
 - `predict_official()`: a direct port of the official NPClassifier decision
   logic (class 0.1, superclass 0.3, pathway 0.5, hierarchical voting,
   glycoside SMARTS check).
+- `npc predict`, `npc convert`, `npc verify` and `npc doctor` subcommands. The
+  historical single-command `npc --model-dir ...` form remains supported.
 - `npc --mode official` for table input; `scores` remains the default mode.
-- Bilingual official-mode documentation.
+- Bilingual CLI and references documentation.
 
 ### Notes
 

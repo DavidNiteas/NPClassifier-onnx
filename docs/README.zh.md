@@ -1,6 +1,6 @@
 # NPClassifier-onnx 中文文档
 
-[English README](../README.md) · [快速开始](quickstart.zh.md) · [模型转换](conversion.zh.md)
+[English README](../README.md) · [快速开始](quickstart.zh.md) · [模型转换](conversion.zh.md) · [命令行接口](zh/cli.md) · [引用与声明](zh/references.md)
 
 `NPClassifier-onnx` 用 ONNX Runtime 运行
 [NPClassifier](https://github.com/mwang87/NP-Classifier) 推理。它保留官方实现的
@@ -91,7 +91,7 @@ print(official[["isglycoside", "pathway_results", "class_results"]])
 ## 命令行
 
 ```bash
-npc \
+npc predict \
   --model-dir /path/to/model_dir \
   --input molecules.csv \
   --column smiles \
@@ -99,8 +99,15 @@ npc \
   --output results.csv
 ```
 
-同时兼容 `--model_dir`、`--input_file`、`--tag_column`、`--batch_size`、
-`--top_k` 等下划线写法。完整参数见 `npc --help`。
+旧版单命令写法仍兼容：
+
+```bash
+npc --model-dir /path/to/model_dir --input molecules.csv --top-k 3
+```
+
+`npc` 还提供 `convert`、`verify`、`doctor` 子命令。同时兼容 `--model_dir`、
+`--input_file`、`--tag_column`、`--batch_size`、`--top_k` 等下划线写法。
+完整参数见[命令行接口](zh/cli.md)。
 
 输出列名以模型文件名主干为前缀：
 
@@ -114,13 +121,20 @@ npc \
 - [快速开始](quickstart.zh.md) · [Quick start](quickstart.md)
 - [官方模式](zh/official-mode.md) · [Official mode](en/official-mode.md)
 - [模型转换](conversion.zh.md) · [Conversion](conversion.md)
+- [Python API](zh/api.md) · [Python API](en/api.md)
+- [命令行接口](zh/cli.md) · [CLI reference](en/cli.md)
+- [引用与声明](zh/references.md) · [References](en/references.md)
 - [English README](../README.md)
 
 ## 许可证与引用
 
-包装代码使用 MIT 许可证。NPClassifier 本身使用 MIT 许可证；官方模型、数据和
-ontology 使用 CC0。详见 [LICENSE](../LICENSE) 和
+`NPClassifier-onnx` 是独立的第三方推理封装，**不是** NPClassifier 官方版本。
+需要官方实现、Web 服务或官方支持时，请前往
 [NPClassifier 仓库](https://github.com/mwang87/NP-Classifier)。
+
+包装代码使用 MIT 许可证。NPClassifier 本身使用 MIT 许可证；官方模型、数据和
+ontology 使用 CC0。本仓库不分发模型权重。详见 [LICENSE](../LICENSE) 和
+[引用与声明](zh/references.md)。
 
 如果研究中使用 NPClassifier，请引用：
 

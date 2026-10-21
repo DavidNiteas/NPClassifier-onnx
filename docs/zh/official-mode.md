@@ -50,12 +50,12 @@ probabilities, status = classifier.batch_predict(
 )
 ```
 
-需要 AP/AUROC 或自定义阈值时用 `scores`；需要对齐官方工具输出时用 `official`。
+需要原始概率或自定义阈值时用 `scores`；需要对齐官方工具输出时用 `official`。
 
 ## CLI
 
 ```bash
-npc \
+npc predict \
   --model-dir /path/to/model_dir \
   --input molecules.csv \
   --column smiles \
@@ -78,7 +78,7 @@ V25 权重；公开转换的 V1 导出可能具有完全不同的分数尺度。
 官方模式的阈值可以覆盖：
 
 ```bash
-npc --model-dir /path/to/model_dir --input molecules.csv --mode official \
+npc predict --model-dir /path/to/model_dir --input molecules.csv --mode official \
   --class-threshold 1e-7
 ```
 

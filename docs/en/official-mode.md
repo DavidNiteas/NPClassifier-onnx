@@ -54,13 +54,13 @@ probabilities, status = classifier.batch_predict(
 )
 ```
 
-Use `scores` for AP/AUROC and custom thresholds; use `official` when you need to
-match the official tool's output contract.
+Use `scores` for raw probabilities and custom thresholds; use `official` when
+you need to match the official tool's output contract.
 
 ## CLI
 
 ```bash
-npc \
+npc predict \
   --model-dir /path/to/model_dir \
   --input molecules.csv \
   --column smiles \
@@ -86,7 +86,7 @@ scores still rank classes usefully.
 For that reason the official-mode thresholds are overridable:
 
 ```bash
-npc --model-dir /path/to/model_dir --input molecules.csv --mode official \
+npc predict --model-dir /path/to/model_dir --input molecules.csv --mode official \
   --class-threshold 1e-7
 ```
 

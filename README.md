@@ -1,6 +1,6 @@
 # NPClassifier-onnx
 
-[中文文档](docs/README.zh.md) · [Quick start](docs/quickstart.md) · [Official mode](docs/en/official-mode.md) · [Conversion](docs/conversion.md)
+[中文文档](docs/README.zh.md) · [Quick start](docs/quickstart.md) · [Official mode](docs/en/official-mode.md) · [Conversion](docs/conversion.md) · [CLI](docs/en/cli.md) · [References](docs/en/references.md)
 
 `NPClassifier-onnx` runs [NPClassifier](https://github.com/mwang87/NP-Classifier)
 inference with ONNX Runtime. It keeps the original Morgan-count fingerprint
@@ -99,7 +99,7 @@ print(official[["isglycoside", "pathway_results", "class_results"]])
 ## Command line
 
 ```bash
-npc \
+npc predict \
   --model-dir /path/to/model_dir \
   --input molecules.csv \
   --column smiles \
@@ -107,14 +107,22 @@ npc \
   --output results.csv
 ```
 
+The historical single-command form is still accepted:
+
+```bash
+npc --model-dir /path/to/model_dir --input molecules.csv --top-k 3
+```
+
+`npc` also provides `convert`, `verify` and `doctor` subcommands. See the
+[CLI reference](docs/en/cli.md) for every option. Compatibility aliases such as
 `--model_dir`, `--input_file`, `--tag_column`, `--batch_size` and `--top_k` are
-accepted as aliases for compatibility. Use `npc --help` for all options.
+accepted.
 
 To reproduce the official NPClassifier decision logic (class 0.1, superclass
 0.3, pathway 0.5, hierarchical voting, glycoside check):
 
 ```bash
-npc --model-dir /path/to/model_dir --input molecules.csv --mode official
+npc predict --model-dir /path/to/model_dir --input molecules.csv --mode official
 ```
 
 The `scores` mode remains the default. See
@@ -130,14 +138,20 @@ Output columns follow the model file stems:
 ## Documentation
 
 - [Quick start](docs/quickstart.md) · [快速开始](docs/quickstart.zh.md)
+- [Python API](docs/en/api.md) · [Python API](docs/zh/api.md)
 - [Conversion guide](docs/conversion.md) · [转换指南](docs/conversion.zh.md)
+- [CLI reference](docs/en/cli.md) · [命令行接口](docs/zh/cli.md)
+- [Official mode](docs/en/official-mode.md) · [官方模式](docs/zh/official-mode.md)
+- [References and notices](docs/en/references.md) · [引用与声明](docs/zh/references.md)
 - [中文总览](docs/README.zh.md)
 
 ## License and attribution
 
 The wrapper code is MIT licensed. NPClassifier is MIT licensed; its official
-models, data and ontology are CC0. See [LICENSE](LICENSE) and the
-[NPClassifier repository](https://github.com/mwang87/NP-Classifier).
+models, data and ontology are CC0. This project is **not** the official
+NPClassifier release; for the official implementation and support, see the
+[NPClassifier repository](https://github.com/mwang87/NP-Classifier). See
+[LICENSE](LICENSE) and [References and notices](docs/en/references.md).
 
 If you use NPClassifier in research, please cite:
 

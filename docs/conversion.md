@@ -4,9 +4,9 @@ This project does **not** distribute NPClassifier model weights. It provides a
 local, reproducible path from the official Keras HDF5 models to the ONNX files
 used by this package.
 
-The official V1 models are fully-connected networks. `tools/convert/convert_npc.py`
-reads the Keras `model_config` and weights directly from HDF5 and builds an
-equivalent ONNX graph with NumPy and ONNX. It does not need TensorFlow, which
+The official V1 models are fully-connected networks. `npc convert` reads the
+Keras `model_config` and weights directly from HDF5 and builds an equivalent
+ONNX graph with NumPy and ONNX. It does not need TensorFlow, which
 avoids the old TensorFlow 2.3 conversion environment.
 
 ## Inputs
@@ -39,12 +39,15 @@ pip install -r tools/convert/requirements.txt
 ## Convert
 
 ```bash
-python tools/convert/convert_npc.py \
+npc convert \
   --hdf5-dir /path/to/hdf5 \
   --index /path/to/index_v1.json \
   --output-dir /path/to/model_dir \
   --verify
 ```
+
+From a source checkout without installation, the compatibility script
+`tools/convert/convert_npc.py` accepts the same options.
 
 The output directory will contain:
 
@@ -79,12 +82,15 @@ an incorrect graph.
 If you have a trusted reference ONNX export, compare it with the new conversion:
 
 ```bash
-python tools/convert/verify_parity.py \
+npc verify \
   --reference-dir /path/to/reference \
   --model-dir /path/to/model_dir \
   --models class,pathway,superclass \
   --samples 16
 ```
+
+From a source checkout, `tools/convert/verify_parity.py` accepts the same
+options.
 
 The tool prints one JSON object per model with `max_abs_diff`, top-k agreement
 and a `status` field. It exits with code 1 if a model exceeds `--atol`
@@ -92,9 +98,9 @@ and a `status` field. It exits with code 1 if a model exceeds `--atol`
 distribution, so the top-k check only considers rows with a clear, non-zero
 winner; numerical parity is still checked on every row.
 
-Converting the same HDF5 files with this tool and comparing to a reference
-export of the official V1 models gives sub-`1e-5` maximum absolute differences
-on random fingerprint batches, with matching top-1 labels.
+Record the reported `max_abs_diff`, top-k agreement and `status` values for
+the conversion you actually use; no parity result is published as a blanket
+claim for every environment.
 
 ## Docker
 

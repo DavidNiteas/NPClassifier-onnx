@@ -94,7 +94,7 @@ inputs: `.csv`, `.tsv`/`.tab`/`.txt`, `.xlsx`, `.pkl`, `.parquet`, and
 ## 5. Command line
 
 ```bash
-npc \
+npc predict \
   --model-dir /path/to/model_dir \
   --input molecules.csv \
   --column smiles \
@@ -103,21 +103,23 @@ npc \
   --output results.csv
 ```
 
-The output format is selected by the output extension: `.csv`, `.tsv`, `.xlsx`,
-`.pkl` or `.parquet`. Excel output requires the `[excel]` extra. Use `--quiet`
-to hide the progress bar and summary line.
+The historical form without `predict` is still accepted. The output format is
+selected by the output extension: `.csv`, `.tsv`, `.xlsx`, `.pkl` or
+`.parquet`. Excel output requires the `[excel]` extra. Use `--quiet` to hide the
+progress bar and summary line.
 
 To use the official NPClassifier decision logic instead of top-k scores:
 
 ```bash
-npc --model-dir /path/to/model_dir --input molecules.csv --mode official
+npc predict --model-dir /path/to/model_dir --input molecules.csv --mode official
 ```
 
 `--mode official` applies class 0.1, superclass 0.3, pathway 0.5 and the
 official hierarchical voting; see [official mode](en/official-mode.md).
 
 Compatibility aliases are accepted: `--model_dir`, `--input_file`,
-`--tag_column`, `--batch_size`, `--top_k`.
+`--tag_column`, `--batch_size`, `--top_k`. The `convert`, `verify` and `doctor`
+subcommands are documented in the [CLI reference](en/cli.md).
 
 ## 6. Output columns
 
@@ -145,9 +147,9 @@ the `class_` prefix.
 - The loader validates that each ONNX output width matches the number of labels
   in `index_v1.json`; a mismatch raises a clear error.
 
-## 8. Performance
+## 8. Runtime notes
 
-ONNX Runtime uses the CPU execution provider by default. For large tables,
-increase `--batch-size` until memory or latency becomes the limiting factor.
-Fingerprint generation is usually the dominant cost, so preprocessing
-molecules once and reusing the resulting fingerprints can help repeated runs.
+ONNX Runtime uses the CPU execution provider by default. `--batch-size` controls
+memory use; there are no published runtime benchmarks, so measure on your own
+machine and input distribution. Fingerprints can be cached by the caller when the
+same molecules are classified repeatedly.
