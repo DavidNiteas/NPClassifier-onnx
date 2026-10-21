@@ -1,37 +1,88 @@
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.20"]
 build-backend = "hatchling.build"
 
 [project]
-name = "NPClassifier_onnx"
-version = "0.1.0"
-description = "NPClassifier的ONNX推理库"
+name = "npclassifier-onnx"
+version = "0.2.0"
+description = "ONNX Runtime inference for NPClassifier, with a reproducible HDF5-to-ONNX converter"
 readme = "README.md"
-requires-python = ">=3.8"
-keywords = ["chemistry", "machine learning", "natural products", "classification"]
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "NPClassifier-onnx contributors" }]
+keywords = [
+    "chemistry",
+    "machine learning",
+    "natural products",
+    "classification",
+    "onnx",
+]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = [
-    "numpy",
-    "pandas",
-    "onnxruntime",
-    "rdkit",
-    "tqdm",
-    "openpyxl",
-    "tables",
+    "numpy>=1.23",
+    "pandas>=1.5",
+    "onnxruntime>=1.17",
+    "rdkit>=2023.9",
+    "tqdm>=4.65",
+]
+
+[project.optional-dependencies]
+convert = [
+    "h5py>=3.8",
+    "onnx>=1.15",
+    "onnxruntime>=1.17",
+]
+excel = ["openpyxl>=3.0"]
+hdf = ["tables>=3.8"]
+dev = [
+    "pytest>=7",
+    "h5py>=3.8",
+    "onnx>=1.15",
+    "onnxruntime>=1.17",
+    "openpyxl>=3.0",
 ]
 
 [project.scripts]
-npc = "NPClassifier.cli:main"
+npc = "NPClassifier_onnx.cli:main"
+
+[project.urls]
+Repository = "https://github.com/DavidNiteas/NPClassifier-onnx"
+Documentation = "https://github.com/DavidNiteas/NPClassifier-onnx/tree/main/docs"
+Issues = "https://github.com/DavidNiteas/NPClassifier-onnx/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["NPClassifier_onnx"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "/NPClassifier_onnx",
+    "/docs",
+    "/tests",
+    "/tools",
+    "/LICENSE",
+    "/README.md",
+    "/pyproject.toml",
+]
+exclude = [
+    "**/__pycache__",
+    "**/*.pyc",
+    "**/*.onnx",
+    "**/*.hdf5",
+    "**/*.h5",
+    "**/*.zip",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

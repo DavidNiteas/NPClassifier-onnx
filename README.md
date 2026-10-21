@@ -1,137 +1,123 @@
 # NPClassifier-onnx
 
-NPClassifier 是一个用于分类天然产物（Natural Products, NP）的工具，主要基于机器学习模型和特定的分类学方法。它能够根据化学结构（如 SMILES 表示法）对天然产物进行分类，并提供详细的分类层次信息。该工具支持本地部署，当官方途径是通过 Docker 和 TensorFlow 提供服务。本项目基于NPClassifier官方公开的TensorFlow模型权重，基于通用的ONNX格式重写了整个模型的推理过程，打包为一个可pip按照的Python代码库，并提供一个CLI应用程序入口。
+[中文文档](docs/README.zh.md) · [Quick start](docs/quickstart.md) · [Conversion](docs/conversion.md)
 
-## 功能特点
+`NPClassifier-onnx` runs [NPClassifier](https://github.com/mwang87/NP-Classifier)
+inference with ONNX Runtime. It keeps the original Morgan-count fingerprint
+definition and the class/pathway/superclass label decoding, while removing the
+TensorFlow serving dependency.
 
-- 支持SMILES和InChI格式的分子输入
-- 基于Morgan指纹的分子特征提取
-- 批量处理分子数据
-- 支持多种文件格式（CSV、Excel、TSV等）
-- 提供命令行接口和Python API
+The repository contains **inference code and a reproducible HDF5-to-ONNX
+converter**, not model weights. ONNX files are generated locally from the
+official NPClassifier Keras models; they are not committed, packaged, or
+distributed here.
 
-## 安装
+## Features
+
+- SMILES and InChI input, one molecule or batches
+- Same formula/count fingerprint definition as the official implementation
+- Class, pathway and superclass predictions from ONNX Runtime
+- Row-aligned output with an explicit `ok`/`invalid` status
+- CSV, TSV/TXT, Excel, pickle, parquet and HDF5 table input
+- Python API and the `npc` command line tool
+- Conversion tool that does **not** require TensorFlow
+
+## Install
 
 ```bash
-git clone https://github.com/npclassifier/NPClassifier.git
-cd NPClassifier
+git clone https://github.com/DavidNiteas/NPClassifier-onnx.git
+cd NPClassifier-onnx
 pip install .
+
+# Optional extras
+pip install ".[excel]"     # xlsx input/output
+pip install ".[hdf]"       # HDF5 table input
+pip install ".[convert]"   # HDF5 -> ONNX conversion
 ```
 
-## 使用方法
+## Model directory
 
-### 命令行接口
+Inference expects one ONNX file per model and one label mapping:
+
+```text
+model_dir/
+├── class_model.onnx
+├── pathway_model.onnx
+├── superclass_model.onnx
+├── index_v1.json
+└── manifest.json          # optional, written by the converter
+```
+
+Only the models requested in `model_set` need to be present. The loader maps
+model inputs by their feature width (2048 and 4096), so exports using either
+`input_2048`/`input_4096` or `inputs`/`inputs_1` are accepted.
+
+Model weights are not included in this repository. See
+[the conversion guide](docs/conversion.md) for the supported local workflow.
+
+## Python API
+
+```python
+from NPClassifier_onnx import NPClassifier
+
+classifier = NPClassifier(
+    "/path/to/model_dir",
+    model_set=["class", "pathway", "superclass"],
+)
+
+frame = classifier.batch_predict_and_decode(
+    ["CC(=O)OC1=CC=CC=C1C(=O)O", "not-a-smiles"],
+    top_k=3,
+)
+print(frame[["status", "class_model_label_1", "class_model_prob_1"]])
+```
+
+`status` is `ok` for a parsed molecule and `invalid` otherwise. Invalid rows
+stay in the output, with empty prediction columns. To get raw probability
+matrices instead:
+
+```python
+probabilities, status = classifier.batch_predict(
+    ["CCO", "c1ccccc1"], return_status=True
+)
+```
+
+## Command line
 
 ```bash
-npc --model_dir /path/to/models --input_file /path/to/input.xlsx --tag_column inchi --batch_size 256 --top_k 3 --output results.xlsx
+npc \
+  --model-dir /path/to/model_dir \
+  --input molecules.csv \
+  --column smiles \
+  --top-k 3 \
+  --output results.csv
 ```
 
-参数说明：
-- `--model_dir`: 模型文件夹路径（必需）
-- `--input_file`: 输入文件路径（必需）
-- `--tag_column`: 输入文件中包含分子结构的列名（默认：inchi）
-- `--batch_size`: 批处理大小（默认：256）
-- `--top_k`: 返回的前k个预测结果（默认：1）
-- `--output`: 输出文件路径（默认：./npc_results.xlsx）
+`--model_dir`, `--input_file`, `--tag_column`, `--batch_size` and `--top_k` are
+accepted as aliases for compatibility. Use `npc --help` for all options.
 
-### Python API
+Output columns follow the model file stems:
 
-```python
-from NPClassifier import NPClassifier
+- `class_model_prob_1`, `class_model_label_1`, ...
+- `pathway_model_prob_1`, `pathway_model_label_1`, ...
+- `superclass_model_prob_1`, `superclass_model_label_1`, ...
+- `status`
 
-# 初始化分类器
-classifier = NPClassifier("/path/to/models", ["class", "pathway", "superclass"])
+## Documentation
 
-# 预测单个分子
-smiles = "CC(=O)OC1=CC=CC=C1C(=O)O"
-results = classifier.batch_predict_and_decode([smiles], top_k=3)
-print(results)
+- [Quick start](docs/quickstart.md) · [快速开始](docs/quickstart.zh.md)
+- [Conversion guide](docs/conversion.md) · [转换指南](docs/conversion.zh.md)
+- [中文总览](docs/README.zh.md)
 
-# 从文件批量预测
-results_df = classifier.predict_from_table_file(
-    data_path="/path/to/input.xlsx",
-    tag_column="inchi",
-    batch_size=256,
-    top_k=3
-)
-results_df.to_excel("/path/to/output.xlsx")
-```
+## License and attribution
 
-## 输入格式
+The wrapper code is MIT licensed. NPClassifier is MIT licensed; its official
+models, data and ontology are CC0. See [LICENSE](LICENSE) and the
+[NPClassifier repository](https://github.com/mwang87/NP-Classifier).
 
-NPClassifier支持以下分子格式：
-- SMILES字符串
-- InChI字符串
+If you use NPClassifier in research, please cite:
 
-支持以下输入文件格式：
-- CSV (.csv)
-- Excel (.xlsx)
-- TSV/TSV (.tsv, .tab, .txt)
-- Pickle (.pkl)
-- Parquet (.parquet)
-- HDF5 (.h5, .hdf5, .hdf)
-
-## 输出格式
-
-输出为Excel文件，包含以下列：
-- 对于每个模型类别（class、pathway、superclass）：
-  - `{model}_prob_1`, `{model}_label_1`: 最高概率的预测结果
-  - `{model}_prob_2`, `{model}_label_2`: 第二高概率的预测结果（如果top_k > 1）
-  - 以此类推...
-
-## 模型
-
-NPClassifier使用预训练的ONNX模型进行预测。模型文件应包含以下结构：
-
-```
-model/np_classifier/
-├── class_model.onnx      # 类别分类模型
-├── pathway_model.onnx    # 通路分类模型
-├── superclass_model.onnx # 超类分类模型
-└── index_v1.json         # 标签映射文件
-```
-
-### 模型文件说明
-
-- **class_model.onnx**: 用于预测天然产物的具体类别（如生物碱、萜类等）
-- **pathway_model.onnx**: 用于预测天然产物的生物合成通路
-- **superclass_model.onnx**: 用于预测天然产物的大类（如聚酮化合物、苯丙素类等）
-- **index_v1.json**: 包含所有模型的标签映射关系，将模型输出的数字索引转换为可读的类别名称
-
-### 模型使用
-
-在初始化NPClassifier时，需要指定模型目录路径：
-
-```python
-from NPClassifier import NPClassifier
-
-# 指定模型目录
-model_dir = "/path/to/model/np_classifier"
-
-# 初始化分类器，指定要使用的模型类型
-classifier = NPClassifier(model_dir, ["class", "pathway", "superclass"])
-```
-
-### 模型输出
-
-每个模型会输出预测概率和对应的标签：
-
-- **概率值**: 0到1之间的浮点数，表示预测的置信度
-- **标签**: 对应的类别名称，从index_v1.json文件中映射而来
-
-通过设置`top_k`参数，可以获取每个模型的前k个最可能预测结果。
-
-## 依赖项
-
-- numpy
-- pandas
-- onnxruntime
-- rdkit
-- tqdm
-- openpyxl
-- tables
-
-## 引用
-
-如果您在研究中使用了NPClassifier-ONNX，请引用相关论文。
-- [NPClassifier 论文](https://pubs.acs.org/doi/10.1021/acs.jnatprod.1c00399)
+> Kim, H. W.; Wang, M.; Leber, C. A.; et al. NPClassifier: A Deep Neural
+> Network-Based Structural Classification Tool for Natural Products.
+> *J. Nat. Prod.* **2021**, 84, 2795–2807.
+> https://doi.org/10.1021/acs.jnatprod.1c00399

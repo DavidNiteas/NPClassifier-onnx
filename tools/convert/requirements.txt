@@ -1,0 +1,5 @@
+# Conversion-only dependencies (no TensorFlow).
+h5py>=3.8
+numpy>=1.23
+onnx>=1.15
+onnxruntime>=1.17
