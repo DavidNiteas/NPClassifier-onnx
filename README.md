@@ -7,6 +7,10 @@ inference with ONNX Runtime. It keeps the original Morgan-count fingerprint
 definition and the class/pathway/superclass label decoding, while removing the
 TensorFlow serving dependency.
 
+> This project is **not** the official NPClassifier release. For the official
+> implementation, web service, models and support, use the
+> [NPClassifier repository](https://github.com/mwang87/NP-Classifier).
+
 The repository contains **inference code and a reproducible HDF5-to-ONNX
 converter**, not model weights. ONNX files are generated locally from the
 official NPClassifier Keras models; they are not committed, packaged, or
