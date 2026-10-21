@@ -1,41 +1,38 @@
-# Official NPClassifier mode
+# NPClassifier 官方模式
 
-**中文** | [English](../en/official-mode.md)
+[English](../en/official-mode.md) | **中文**
 
-The default `scores` mode returns raw per-class probabilities. The
-`official` mode reproduces the decision logic used by the official
-NPClassifier web application.
+默认的 `scores` 模式返回原始逐类概率。`official` 模式复刻 NPClassifier 官方
+网页应用的决策逻辑。
 
-## What the model outputs
+## 模型输出是什么
 
-The class, superclass and pathway heads are **sigmoid** outputs trained with
-binary cross-entropy. Each value is a per-class Bernoulli-style probability
-estimate from the model:
+class、superclass、pathway 三个输出头都是 **sigmoid**，训练损失是 binary
+cross-entropy。每个值是模型给出的逐类 Bernoulli 概率估计：
 
-- not softmax;
-- not normalized across classes;
-- not guaranteed to be calibrated;
-- the official application does **not** use 0.5 for every head.
+- 不是 softmax；
+- 不要求各类概率和为一；
+- 不保证校准；
+- 官方应用**不是**每个头都用 0.5。
 
-The official application uses:
+官方应用使用：
 
-| Level | Official threshold |
+| 层级 | 官方阈值 |
 |---|---:|
 | class | 0.1 |
 | superclass | 0.3 |
 | pathway | 0.5 |
 
-It then performs hierarchical voting with `Class_hierarchy` and
-`Super_hierarchy`, and reports the glycoside SMARTS check. The implementation in
-`NPClassifier_onnx/official.py` is a direct port of
-`Classifier/prediction_voting.py` and `app.py` from the official repository.
+然后使用 `Class_hierarchy` 和 `Super_hierarchy` 做层级投票，并输出官方糖苷
+SMARTS 检测结果。`NPClassifier_onnx/official.py` 是对官方
+`Classifier/prediction_voting.py` 与 `app.py` 的直接移植。
 
 ## Python API
 
 ```python
 from NPClassifier_onnx import NPClassifier
 
-classifier = NPClassifier("/path/to/model_dir")  # all three models
+classifier = NPClassifier("/path/to/model_dir")  # 需要三个模型
 frame = classifier.predict_official(["CCO", "c1ccccc1"])
 
 print(frame.columns)
@@ -43,10 +40,9 @@ print(frame.columns)
 #        'superclass_results', 'class_results'], dtype='object')
 ```
 
-Each result column contains Python lists. Invalid molecules remain row-aligned
-with `status="invalid"` and empty result lists.
+结果列是 Python list。非法分子的行仍然保留，`status="invalid"`，结果列为空。
 
-Raw probabilities remain available:
+原始概率接口保持不变：
 
 ```python
 probabilities, status = classifier.batch_predict(
@@ -54,8 +50,7 @@ probabilities, status = classifier.batch_predict(
 )
 ```
 
-Use `scores` for AP/AUROC and custom thresholds; use `official` when you need to
-match the official tool's output contract.
+需要 AP/AUROC 或自定义阈值时用 `scores`；需要对齐官方工具输出时用 `official`。
 
 ## CLI
 
@@ -68,15 +63,26 @@ npc \
   --output official_results.csv
 ```
 
-`scores` is the default mode. `official` requires all three models and an index
-file containing `Class_hierarchy` and `Super_hierarchy`.
+`scores` 是默认模式。`official` 需要三个模型，且 index 文件必须包含
+`Class_hierarchy` 和 `Super_hierarchy`。
 
-CSV/XLSX output joins list cells with `;`; use pickle or parquet if you need
-Python lists preserved exactly.
+CSV/XLSX 输出用 `;` 连接 list 单元格；需要精确保留 Python list 时用 pickle 或
+parquet。
 
-## Version note
+## 版本说明
 
-The decision logic is independent of model weights, but the ONNX files you
-convert may come from a different official model release than the web
-application. Thresholds and voting will match; exact probabilities and result
-lists can differ when the underlying weights differ.
+决策逻辑与模型权重无关，但**阈值不能跨模型版本直接搬**。官方网页当前使用
+V25 权重；公开转换的 V1 导出可能具有完全不同的分数尺度。在 V1 上，class 分数
+可能很少达到 0.1，因此官方 0.1 阈值可能几乎不输出 class，即使分数仍有排序价值。
+
+官方模式的阈值可以覆盖：
+
+```bash
+npc --model-dir /path/to/model_dir --input molecules.csv --mode official \
+  --class-threshold 1e-7
+```
+
+覆盖值必须在本地 validation cohort 上校准并记录；不要把 V1 专用阈值说成官方
+V25 默认值。
+
+阈值和投票逻辑会与官方代码一致；底层权重不同会导致概率和最终结果列表不同。

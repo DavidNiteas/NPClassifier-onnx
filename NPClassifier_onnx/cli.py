@@ -86,6 +86,24 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     parser.add_argument(
+        "--class-threshold",
+        type=float,
+        default=None,
+        help="official mode: override the class threshold (default: 0.1)",
+    )
+    parser.add_argument(
+        "--superclass-threshold",
+        type=float,
+        default=None,
+        help="official mode: override the superclass threshold (default: 0.3)",
+    )
+    parser.add_argument(
+        "--pathway-threshold",
+        type=float,
+        default=None,
+        help="official mode: override the pathway threshold (default: 0.5)",
+    )
+    parser.add_argument(
         "--top-k",
         "--top_k",
         dest="top_k",
@@ -169,11 +187,22 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     try:
         classifier = NPClassifier(args.model_dir, args.model_set)
         if args.mode == "official":
+            thresholds = {}
+            for key, value in (
+                ("class", args.class_threshold),
+                ("superclass", args.superclass_threshold),
+                ("pathway", args.pathway_threshold),
+            ):
+                if value is not None:
+                    if value < 0 or value > 1:
+                        raise ValueError("thresholds must be in [0, 1]")
+                    thresholds[key] = value
             frame = classifier.predict_official_from_table_file(
                 data_path=args.input_file,
                 tag_column=args.tag_column,
                 batch_size=args.batch_size,
                 progress=not args.quiet,
+                thresholds=thresholds or None,
             )
         else:
             frame = classifier.predict_from_table_file(

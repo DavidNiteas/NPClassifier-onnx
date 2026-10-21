@@ -76,7 +76,22 @@ Python lists preserved exactly.
 
 ## Version note
 
-The decision logic is independent of model weights, but the ONNX files you
-convert may come from a different official model release than the web
-application. Thresholds and voting will match; exact probabilities and result
-lists can differ when the underlying weights differ.
+The decision logic is independent of model weights, but the thresholds are
+**not necessarily transferable across model releases**. The official web
+application uses V25 weights; a publicly converted V1 export can have a very
+different score scale. On a V1 export, class scores may rarely reach 0.1, so the
+official 0.1 threshold can produce almost no class results even though the
+scores still rank classes usefully.
+
+For that reason the official-mode thresholds are overridable:
+
+```bash
+npc --model-dir /path/to/model_dir --input molecules.csv --mode official \
+  --class-threshold 1e-7
+```
+
+Calibrate an override on a local validation cohort and report the selected
+value; do not present a V1-specific threshold as the official V25 default.
+
+Thresholds and voting will match the official code; exact probabilities and
+result lists can differ when the underlying weights differ.

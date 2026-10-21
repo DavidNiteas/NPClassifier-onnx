@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 import numbers
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence, Tuple, Union
+from typing import Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import onnxruntime as ort
@@ -718,6 +718,8 @@ class NPClassifier:
     def predict_official(
         self,
         input_list: Sequence[MoleculeInput],
+        *,
+        thresholds: Optional[Mapping[str, float]] = None,
     ) -> pd.DataFrame:
         """Run the official NPClassifier decision logic.
 
@@ -727,6 +729,10 @@ class NPClassifier:
         * superclass sigmoid score >= 0.3;
         * pathway sigmoid score >= 0.5, falling back to ``argmax``;
         * hierarchical voting with ``Class_hierarchy`` / ``Super_hierarchy``.
+
+        ``thresholds`` overrides the defaults per head, which is useful when
+        running a different model release (for example a V1 export whose score
+        scale differs from the V25 deployment).
 
         Returns one row per input with the official result lists.  The raw
         scores remain available through :meth:`batch_predict`.
@@ -744,6 +750,20 @@ class NPClassifier:
                     "class_results",
                 ]
             )
+
+        active_thresholds = dict(OFFICIAL_THRESHOLDS)
+        if thresholds:
+            unknown = set(thresholds) - set(active_thresholds)
+            if unknown:
+                raise ValueError(
+                    "unknown threshold keys: %s; expected %s"
+                    % (", ".join(sorted(unknown)), ", ".join(active_thresholds))
+                )
+            for key, value in thresholds.items():
+                value = float(value)
+                if value < 0 or value > 1:
+                    raise ValueError("threshold %r must be in [0, 1]" % key)
+                active_thresholds[key] = value
 
         missing = [
             model
@@ -788,13 +808,13 @@ class NPClassifier:
             smiles = item if isinstance(item, str) else Chem.MolToSmiles(item)
             glycoside = is_glycoside(smiles)
             n_class = np.flatnonzero(
-                class_probs[row] >= OFFICIAL_THRESHOLDS["class"]
+                class_probs[row] >= active_thresholds["class"]
             ).tolist()
             n_super = np.flatnonzero(
-                superclass_probs[row] >= OFFICIAL_THRESHOLDS["superclass"]
+                superclass_probs[row] >= active_thresholds["superclass"]
             ).tolist()
             n_path = np.flatnonzero(
-                pathway_probs[row] >= OFFICIAL_THRESHOLDS["pathway"]
+                pathway_probs[row] >= active_thresholds["pathway"]
             ).tolist()
             if not n_path:
                 n_path = [int(np.argmax(pathway_probs[row]))]
@@ -842,6 +862,7 @@ class NPClassifier:
         tag_column: str = "smiles",
         batch_size: int = 256,
         progress: bool = True,
+        thresholds: Optional[Mapping[str, float]] = None,
     ) -> pd.DataFrame:
         """Run official-mode prediction on a table column."""
         if batch_size < 1:
@@ -856,7 +877,7 @@ class NPClassifier:
         ]
         frames = []
         for batch in tqdm(batches, disable=not progress):
-            frames.append(self.predict_official(batch))
+            frames.append(self.predict_official(batch, thresholds=thresholds))
         frame = pd.concat(frames, ignore_index=True)
         frame.index = pd.Index(data, name=tag_column)
         return frame

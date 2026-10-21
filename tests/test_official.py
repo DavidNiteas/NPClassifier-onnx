@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from NPClassifier_onnx import NPClassifier
 from NPClassifier_onnx.official import (
@@ -83,6 +84,17 @@ def test_vote_classification_two_votes_and_no_path():
     assert pathways == ["P1"]
     assert superclasses == []
     assert classes == []
+
+
+def test_official_threshold_override(synthetic_official_model_dir):
+    classifier = NPClassifier(synthetic_official_model_dir)
+    frame = classifier.predict_official(
+        ["CCO"], thresholds={"class": 0.0, "superclass": 0.0, "pathway": 0.0}
+    )
+    assert frame.loc[0, "status"] == "ok"
+    assert isinstance(frame.loc[0, "class_results"], list)
+    with pytest.raises(ValueError, match="unknown threshold"):
+        classifier.predict_official(["CCO"], thresholds={"nope": 0.1})
 
 
 def test_official_prediction_api(synthetic_official_model_dir):
