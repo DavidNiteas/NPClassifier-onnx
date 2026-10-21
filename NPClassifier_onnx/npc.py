@@ -21,6 +21,12 @@ from rdkit.Chem import rdFingerprintGenerator
 from rdkit.Chem.rdchem import Mol
 from tqdm import tqdm
 
+from .official import (
+    OFFICIAL_THRESHOLDS,
+    is_glycoside,
+    vote_classification,
+)
+
 MODEL_NAMES: Tuple[str, ...] = ("class", "pathway", "superclass")
 DEFAULT_MODEL_SET: Tuple[str, ...] = MODEL_NAMES
 FINGERPRINT_SIZE = 2048
@@ -50,6 +56,9 @@ class NPClassifier:
         self.model_dir_path = Path(model_dir_path).expanduser()
         self.sessions, self.mapping = self.load_sessions(
             self.model_dir_path, model_set
+        )
+        self.ontology = self.load_ontology(
+            self._resolve_index_file(self.model_dir_path), require_hierarchy=False
         )
 
     # ------------------------------------------------------------------
@@ -237,6 +246,43 @@ class NPClassifier:
                 "label mapping has no Class/Pathway/Superclass entries: %s" % path
             )
         return mapping
+
+    @staticmethod
+    def load_ontology(
+        mapping_path: Union[str, Path],
+        *,
+        require_hierarchy: bool = True,
+    ) -> Dict[str, object]:
+        """Load the full official ontology, including hierarchy tables.
+
+        ``load_mapping`` intentionally exposes only label series; the official
+        voting mode additionally needs ``Class_hierarchy`` and
+        ``Super_hierarchy``.  Scores-only mode sets ``require_hierarchy=False``
+        so older or minimal index files remain usable.
+        """
+        path = Path(mapping_path)
+        with path.open("r", encoding="utf-8") as handle:
+            raw = json.load(handle)
+        if not isinstance(raw, dict):
+            raise ValueError("ontology file %s must contain a JSON object" % path)
+        required = {"Class", "Superclass", "Pathway"}
+        if require_hierarchy:
+            required.update({"Class_hierarchy", "Super_hierarchy"})
+        missing = required - set(raw)
+        if missing:
+            raise ValueError(
+                "ontology file %s is missing sections: %s"
+                % (path, ", ".join(sorted(missing)))
+            )
+        for section in ("Class", "Superclass", "Pathway"):
+            if not isinstance(raw[section], dict) or not raw[section]:
+                raise ValueError("ontology section %r must be a non-empty object" % section)
+        for section in ("Class_hierarchy", "Super_hierarchy"):
+            if section in raw and (
+                not isinstance(raw[section], dict) or not raw[section]
+            ):
+                raise ValueError("ontology section %r must be a non-empty object" % section)
+        return raw
 
     @staticmethod
     def _mapping_key(model_name: str) -> str:
@@ -658,6 +704,162 @@ class NPClassifier:
             input_list, used_model=used_model, return_status=True
         )
         return self.decode_results(results, top_k=top_k, status=status)
+
+    def _session_key_for_model(self, model_name: str) -> str:
+        wanted = self._mapping_key(model_name)
+        for key in self.sessions:
+            if self._mapping_key(key) == wanted:
+                return key
+        raise ValueError(
+            "model %r is not loaded; load it with model_set including %r"
+            % (model_name, wanted)
+        )
+
+    def predict_official(
+        self,
+        input_list: Sequence[MoleculeInput],
+    ) -> pd.DataFrame:
+        """Run the official NPClassifier decision logic.
+
+        This is a port of the official web application:
+
+        * class sigmoid score >= 0.1;
+        * superclass sigmoid score >= 0.3;
+        * pathway sigmoid score >= 0.5, falling back to ``argmax``;
+        * hierarchical voting with ``Class_hierarchy`` / ``Super_hierarchy``.
+
+        Returns one row per input with the official result lists.  The raw
+        scores remain available through :meth:`batch_predict`.
+        """
+        if isinstance(input_list, (str, Mol)):
+            input_list = [input_list]
+        items = list(input_list)
+        if not items:
+            return pd.DataFrame(
+                columns=[
+                    "status",
+                    "isglycoside",
+                    "pathway_results",
+                    "superclass_results",
+                    "class_results",
+                ]
+            )
+
+        missing = [
+            model
+            for model in ("class", "pathway", "superclass")
+            if not any(self._mapping_key(key) == model for key in self.sessions)
+        ]
+        if missing:
+            raise ValueError(
+                "official mode requires class, pathway and superclass models; "
+                "missing: %s" % ", ".join(missing)
+            )
+        missing_hierarchy = {"Class_hierarchy", "Super_hierarchy"} - set(self.ontology)
+        if missing_hierarchy:
+            raise ValueError(
+                "official mode requires an index with hierarchy sections: %s"
+                % ", ".join(sorted(missing_hierarchy))
+            )
+
+        results, status = self.batch_predict(
+            items,
+            used_model=["class", "pathway", "superclass"],
+            return_status=True,
+        )
+        class_probs = results[self._session_key_for_model("class")]
+        pathway_probs = results[self._session_key_for_model("pathway")]
+        superclass_probs = results[self._session_key_for_model("superclass")]
+
+        rows: List[Dict[str, object]] = []
+        for row, item in enumerate(items):
+            if status[row] != "ok":
+                rows.append(
+                    {
+                        "status": "invalid",
+                        "isglycoside": None,
+                        "pathway_results": [],
+                        "superclass_results": [],
+                        "class_results": [],
+                    }
+                )
+                continue
+
+            smiles = item if isinstance(item, str) else Chem.MolToSmiles(item)
+            glycoside = is_glycoside(smiles)
+            n_class = np.flatnonzero(
+                class_probs[row] >= OFFICIAL_THRESHOLDS["class"]
+            ).tolist()
+            n_super = np.flatnonzero(
+                superclass_probs[row] >= OFFICIAL_THRESHOLDS["superclass"]
+            ).tolist()
+            n_path = np.flatnonzero(
+                pathway_probs[row] >= OFFICIAL_THRESHOLDS["pathway"]
+            ).tolist()
+            if not n_path:
+                n_path = [int(np.argmax(pathway_probs[row]))]
+
+            path_from_class = [
+                path
+                for class_id in n_class
+                for path in self.ontology["Class_hierarchy"][str(int(class_id))][
+                    "Pathway"
+                ]
+            ]
+            path_from_superclass = [
+                path
+                for superclass_id in n_super
+                for path in self.ontology["Super_hierarchy"][str(int(superclass_id))][
+                    "Pathway"
+                ]
+            ]
+            pathways, superclasses, classes, glycoside = vote_classification(
+                n_path=n_path,
+                n_class=n_class,
+                n_super=n_super,
+                pred_class=class_probs[row],
+                pred_super=superclass_probs[row],
+                path_from_class=path_from_class,
+                path_from_superclass=path_from_superclass,
+                isglycoside=glycoside,
+                ontology=self.ontology,
+            )
+            rows.append(
+                {
+                    "status": "ok",
+                    "isglycoside": glycoside,
+                    "pathway_results": pathways,
+                    "superclass_results": superclasses,
+                    "class_results": classes,
+                }
+            )
+
+        return pd.DataFrame(rows)
+
+    def predict_official_from_table_file(
+        self,
+        data_path: Union[str, Path],
+        tag_column: str = "smiles",
+        batch_size: int = 256,
+        progress: bool = True,
+    ) -> pd.DataFrame:
+        """Run official-mode prediction on a table column."""
+        if batch_size < 1:
+            raise ValueError("batch_size must be at least 1")
+        path = Path(data_path).expanduser()
+        data = list(self._read_table_column(path, tag_column))
+        if not data:
+            raise ValueError("input table has no rows: %s" % path)
+        batches = [
+            data[start : start + batch_size]
+            for start in range(0, len(data), batch_size)
+        ]
+        frames = []
+        for batch in tqdm(batches, disable=not progress):
+            frames.append(self.predict_official(batch))
+        frame = pd.concat(frames, ignore_index=True)
+        frame.index = pd.Index(data, name=tag_column)
+        return frame
 
     # ------------------------------------------------------------------
     # Table input

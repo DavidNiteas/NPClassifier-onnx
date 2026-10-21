@@ -1,0 +1,26 @@
+# Changelog
+
+## [0.3.0] - 2026-10-21
+
+### Added
+
+- `predict_official()`: a direct port of the official NPClassifier decision
+  logic (class 0.1, superclass 0.3, pathway 0.5, hierarchical voting,
+  glycoside SMARTS check).
+- `npc --mode official` for table input; `scores` remains the default mode.
+- Bilingual official-mode documentation.
+
+### Notes
+
+- `predict_scores` / `batch_predict` remains the raw per-class probability API.
+- Official thresholds are decision rules, not properties of the sigmoid output;
+  the model itself is trained with binary cross-entropy.
+- Exact result lists depend on the model release (V1 ONNX vs the official V25
+  deployment).
+
+## [0.2.0] - 2026-10-21
+
+### Added
+
+- ID-aligned/scores-mode hardening, HDF5-to-ONNX converter, parity verifier,
+  bilingual docs and synthetic tests.

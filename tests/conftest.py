@@ -142,7 +142,17 @@ def write_index(path: Path, classes: int = 3) -> None:
         "Class": {labels[i]: i for i in range(classes)},
         "Pathway": {"Pathway A": 0, "Pathway B": 1},
         "Superclass": {"Superclass A": 0, "Superclass B": 1},
-        "Class_hierarchy": {"Alpha": {"Pathway": [0], "Superclass": [0]}},
+        "Class_hierarchy": {
+            str(i): {
+                "Pathway": [0 if i < 2 else 1],
+                "Superclass": [0 if i < 2 else 1],
+            }
+            for i in range(classes)
+        },
+        "Super_hierarchy": {
+            "0": {"Pathway": [0]},
+            "1": {"Pathway": [1]},
+        },
     }
     path.write_text(json.dumps(index), encoding="utf-8")
 
@@ -182,3 +192,24 @@ def synthetic_model_dir(tmp_path: Path, synthetic_hdf5):
     onnx.save_model(proto, str(model_dir / "class_model.onnx"))
     write_index(model_dir / "index_v1.json", classes=3)
     return model_dir, weights
+
+
+@pytest.fixture
+def synthetic_official_model_dir(tmp_path: Path):
+    model_dir = tmp_path / "official_models"
+    model_dir.mkdir()
+    weights = {}
+    for model_name, classes in (
+        ("class", 3),
+        ("pathway", 2),
+        ("superclass", 2),
+    ):
+        hdf5_path = tmp_path / ("%s.hdf5" % model_name)
+        weights[model_name] = make_synthetic_hdf5(
+            hdf5_path, classes=classes, seed=classes + 10
+        )
+        proto, summary = convert_npc.build_onnx_model(hdf5_path)
+        assert summary["classes"] == classes
+        onnx.save_model(proto, str(model_dir / ("%s_model.onnx" % model_name)))
+    write_index(model_dir / "index_v1.json", classes=3)
+    return model_dir

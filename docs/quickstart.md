@@ -107,6 +107,15 @@ The output format is selected by the output extension: `.csv`, `.tsv`, `.xlsx`,
 `.pkl` or `.parquet`. Excel output requires the `[excel]` extra. Use `--quiet`
 to hide the progress bar and summary line.
 
+To use the official NPClassifier decision logic instead of top-k scores:
+
+```bash
+npc --model-dir /path/to/model_dir --input molecules.csv --mode official
+```
+
+`--mode official` applies class 0.1, superclass 0.3, pathway 0.5 and the
+official hierarchical voting; see [official mode](en/official-mode.md).
+
 Compatibility aliases are accepted: `--model_dir`, `--input_file`,
 `--tag_column`, `--batch_size`, `--top_k`.
 

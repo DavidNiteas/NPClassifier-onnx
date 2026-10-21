@@ -104,6 +104,15 @@ npc \
 输出格式由输出文件扩展名决定：`.csv`、`.tsv`、`.xlsx`、`.pkl` 或 `.parquet`。
 Excel 输出需要 `[excel]` 额外依赖。加 `--quiet` 可关闭进度条和摘要。
 
+要使用 NPClassifier 官方的决策逻辑而不是 top-k 分数：
+
+```bash
+npc --model-dir /path/to/model_dir --input molecules.csv --mode official
+```
+
+`--mode official` 使用 class 0.1、superclass 0.3、pathway 0.5，并执行官方层级
+投票；详见[官方模式](zh/official-mode.md)。
+
 同时兼容 `--model_dir`、`--input_file`、`--tag_column`、`--batch_size`、
 `--top_k` 等旧写法。
 

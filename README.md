@@ -1,6 +1,6 @@
 # NPClassifier-onnx
 
-[中文文档](docs/README.zh.md) · [Quick start](docs/quickstart.md) · [Conversion](docs/conversion.md)
+[中文文档](docs/README.zh.md) · [Quick start](docs/quickstart.md) · [Official mode](docs/en/official-mode.md) · [Conversion](docs/conversion.md)
 
 `NPClassifier-onnx` runs [NPClassifier](https://github.com/mwang87/NP-Classifier)
 inference with ONNX Runtime. It keeps the original Morgan-count fingerprint
@@ -17,6 +17,8 @@ distributed here.
 - SMILES and InChI input, one molecule or batches
 - Same formula/count fingerprint definition as the official implementation
 - Class, pathway and superclass predictions from ONNX Runtime
+- Raw per-class scores plus an `official` mode with the upstream 0.1/0.3/0.5
+  thresholds and hierarchical voting
 - Row-aligned output with an explicit `ok`/`invalid` status
 - CSV, TSV/TXT, Excel, pickle, parquet and HDF5 table input
 - Python API and the `npc` command line tool
@@ -82,6 +84,18 @@ probabilities, status = classifier.batch_predict(
 )
 ```
 
+To reproduce the official NPClassifier decision logic (class 0.1, superclass
+0.3, pathway 0.5, hierarchical voting and glycoside detection):
+
+```python
+official = classifier.predict_official(["CCO", "c1ccccc1"])
+print(official[["isglycoside", "pathway_results", "class_results"]])
+```
+
+`official` mode requires all three ONNX models and an `index_v1.json` containing
+`Class_hierarchy` and `Super_hierarchy`. See
+[the official-mode guide](docs/en/official-mode.md).
+
 ## Command line
 
 ```bash
@@ -95,6 +109,16 @@ npc \
 
 `--model_dir`, `--input_file`, `--tag_column`, `--batch_size` and `--top_k` are
 accepted as aliases for compatibility. Use `npc --help` for all options.
+
+To reproduce the official NPClassifier decision logic (class 0.1, superclass
+0.3, pathway 0.5, hierarchical voting, glycoside check):
+
+```bash
+npc --model-dir /path/to/model_dir --input molecules.csv --mode official
+```
+
+The `scores` mode remains the default. See
+[the official-mode guide](docs/en/official-mode.md).
 
 Output columns follow the model file stems:
 

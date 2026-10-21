@@ -77,12 +77,21 @@ def build_parser() -> argparse.ArgumentParser:
         help="molecules per inference batch (default: 256)",
     )
     parser.add_argument(
+        "--mode",
+        choices=["scores", "official"],
+        default="scores",
+        help=(
+            "scores: per-class probabilities/top-k (default); official: "
+            "NPClassifier class 0.1 / superclass 0.3 / pathway 0.5 + voting"
+        ),
+    )
+    parser.add_argument(
         "--top-k",
         "--top_k",
         dest="top_k",
         type=_positive_int,
         default=1,
-        help="number of labels to return per model (default: 1)",
+        help="number of labels to return per model in scores mode (default: 1)",
     )
     parser.add_argument(
         "--model-set",
@@ -117,7 +126,19 @@ def _write_output(frame: pd.DataFrame, output: str) -> Path:
         path = path.with_suffix(".csv")
     path.parent.mkdir(parents=True, exist_ok=True)
 
+    # Official mode returns Python lists; table formats cannot represent them
+    # reliably, so join them with a semicolon.  Pickle/parquet keep the lists.
     suffix = path.suffix.lower()
+    if suffix in (".csv", ".tsv", ".tab", ".txt", ".xlsx", ".xls"):
+        frame = frame.copy()
+        for column in frame.columns:
+            if frame[column].map(lambda value: isinstance(value, list)).any():
+                frame[column] = frame[column].map(
+                    lambda value: ";".join(map(str, value))
+                    if isinstance(value, list)
+                    else value
+                )
+
     if suffix == ".csv":
         frame.to_csv(path)
     elif suffix in (".tsv", ".tab", ".txt"):
@@ -147,13 +168,21 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     args = parser.parse_args(argv)
     try:
         classifier = NPClassifier(args.model_dir, args.model_set)
-        frame = classifier.predict_from_table_file(
-            data_path=args.input_file,
-            tag_column=args.tag_column,
-            batch_size=args.batch_size,
-            top_k=args.top_k,
-            progress=not args.quiet,
-        )
+        if args.mode == "official":
+            frame = classifier.predict_official_from_table_file(
+                data_path=args.input_file,
+                tag_column=args.tag_column,
+                batch_size=args.batch_size,
+                progress=not args.quiet,
+            )
+        else:
+            frame = classifier.predict_from_table_file(
+                data_path=args.input_file,
+                tag_column=args.tag_column,
+                batch_size=args.batch_size,
+                top_k=args.top_k,
+                progress=not args.quiet,
+            )
         output_path = _write_output(frame, args.output)
     except (FileNotFoundError, NotADirectoryError, ValueError, KeyError, ImportError, OSError) as exc:
         print("npc: error: %s" % exc, file=sys.stderr)

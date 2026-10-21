@@ -77,6 +77,17 @@ probabilities, status = classifier.batch_predict(
 )
 ```
 
+要复刻 NPClassifier 官方决策逻辑（class 0.1、superclass 0.3、pathway 0.5、
+层级投票和糖苷检测）：
+
+```python
+official = classifier.predict_official(["CCO", "c1ccccc1"])
+print(official[["isglycoside", "pathway_results", "class_results"]])
+```
+
+`official` 模式需要三个 ONNX 模型，且 `index_v1.json` 必须包含
+`Class_hierarchy` 和 `Super_hierarchy`。详见[官方模式](zh/official-mode.md)。
+
 ## 命令行
 
 ```bash
@@ -101,6 +112,7 @@ npc \
 ## 文档
 
 - [快速开始](quickstart.zh.md) · [Quick start](quickstart.md)
+- [官方模式](zh/official-mode.md) · [Official mode](en/official-mode.md)
 - [模型转换](conversion.zh.md) · [Conversion](conversion.md)
 - [English README](../README.md)
 
