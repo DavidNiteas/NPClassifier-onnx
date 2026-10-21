@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1] - 2026-10-22
+
+### Changed
+
+- Set the wrapper author/maintainer to David Niteas and update the license
+  copyright notice. Upstream attribution and licensing are unchanged.
+
 ## [0.3.0] - 2026-10-21
 
 ### Added
