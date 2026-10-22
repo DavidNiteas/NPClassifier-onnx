@@ -51,7 +51,7 @@ The repository contains inference code and the converter, not model weights. ONN
 Python `>=3.9` is required. When installing alongside `smiles2class` and `unimol_lite`, use Python 3.10 or 3.11.
 
 ```bash
-python -m pip install "git+https://github.com/DavidNiteas/NPClassifier-onnx.git@v0.3.1"
+python -m pip install "git+https://github.com/DavidNiteas/NPClassifier-onnx.git@v0.3.2"
 
 # Or from a checkout
 git clone https://github.com/DavidNiteas/NPClassifier-onnx.git
@@ -162,7 +162,7 @@ MIT for the wrapper. See [`LICENSE`](./LICENSE). Citation metadata is in [`CITAT
 需要 Python `>=3.9`。与 `smiles2class`、`unimol_lite` 一起安装时，使用 Python 3.10 或 3.11。
 
 ```bash
-python -m pip install "git+https://github.com/DavidNiteas/NPClassifier-onnx.git@v0.3.1"
+python -m pip install "git+https://github.com/DavidNiteas/NPClassifier-onnx.git@v0.3.2"
 
 # 或从源码安装
 git clone https://github.com/DavidNiteas/NPClassifier-onnx.git

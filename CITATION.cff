@@ -2,7 +2,7 @@ cff-version: 1.2.0
 message: "If you use this software, please cite it using the metadata below."
 title: "NPClassifier-onnx"
 abstract: "ONNX Runtime inference for NPClassifier, with a reproducible HDF5-to-ONNX converter."
-version: "0.3.1"
+version: "0.3.2"
 date-released: "2026-10-22"
 license: MIT
 authors:

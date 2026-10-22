@@ -9,7 +9,7 @@
 ## Install from Git
 
 ```shell
-python -m pip install "git+https://github.com/DavidNiteas/NPClassifier-onnx.git@v0.3.1"
+python -m pip install "git+https://github.com/DavidNiteas/NPClassifier-onnx.git@v0.3.2"
 ```
 
 ## Install from a checkout
