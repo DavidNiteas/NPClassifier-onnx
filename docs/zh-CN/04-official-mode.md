@@ -1,6 +1,11 @@
 # NPClassifier 官方模式
 
-[English](../en/official-mode.md) | **中文**
+**中文** | [English](../en/04-official-mode.md) · [返回主页](../../README.md#zh-cn)
+
+**层级：** 2 — 使用
+
+**前置条件：** [快速开始](./02-quickstart.md)。
+
 
 默认的 `scores` 模式返回原始逐类概率。`official` 模式复刻 NPClassifier 官方
 网页应用的决策逻辑。
@@ -86,3 +91,5 @@ npc predict --model-dir /path/to/model_dir --input molecules.csv --mode official
 V25 默认值。
 
 阈值和投票逻辑会与官方代码一致；底层权重不同会导致概率和最终结果列表不同。
+
+**下一页：** [Python API](./05-api.md)

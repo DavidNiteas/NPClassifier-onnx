@@ -1,0 +1,29 @@
+NPClassifier-onnx
+=================
+
+NPClassifier-onnx is an independent ONNX Runtime inference wrapper for
+NPClassifier, with a local HDF5-to-ONNX converter.
+
+Authors
+-------
+David Niteas <david.ql.d@foxmail.com>
+
+What's shipped
+--------------
+This repository contains wrapper/inference code, the converter, tests and
+documentation only. It does not include NPClassifier HDF5 weights, converted ONNX
+files, `index_v1.json` or datasets.
+
+This project is not the official NPClassifier release and is not maintained or
+endorsed by the NPClassifier authors. The official implementation and support are
+available at https://github.com/mwang87/NP-Classifier.
+
+Licensing
+---------
+The wrapper code is MIT licensed. NPClassifier is MIT licensed; its official
+models, data and ontology are CC0. See LICENSE and docs/en/07-references.md.
+
+Citation
+--------
+If you use NPClassifier or its classifications, cite the NPClassifier paper. The
+BibTeX entry is in README.md and docs/en/07-references.md.

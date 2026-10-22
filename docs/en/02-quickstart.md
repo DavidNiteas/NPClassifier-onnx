@@ -1,22 +1,12 @@
 # Quick start
 
-## 1. Install
+[中文](../zh-CN/02-quickstart.md) | **English** · [Documentation home](../../README.md#english)
 
-From the repository root:
+**Level:** 1 — Start
 
-```bash
-pip install .
-```
+**Prerequisites:** [Installation](./01-installation.md).
 
-Optional extras:
-
-```bash
-pip install ".[excel]"     # xlsx input/output
-pip install ".[hdf]"       # HDF5 table input
-pip install ".[convert]"   # HDF5 -> ONNX conversion
-```
-
-## 2. Prepare a model directory
+## 1. Prepare a model directory
 
 Inference reads ONNX models and a label mapping from one directory:
 
@@ -31,9 +21,9 @@ model_dir/
 Only the models you request need to exist. The label mapping is the
 `index_v1.json` file shipped with the NPClassifier source tree. The model
 weights are not part of this package; generate the ONNX files with the
-[conversion guide](conversion.md).
+[conversion guide](03-conversion.md).
 
-## 3. Python API
+## 2. Python API
 
 ```python
 from NPClassifier_onnx import NPClassifier
@@ -75,7 +65,7 @@ frame = classifier.batch_predict_and_decode(["CCO"], top_k=5)
 
 `top_k` must not exceed the number of classes of the selected model.
 
-## 4. Predict from a table
+## 3. Predict from a table
 
 ```python
 frame = classifier.predict_from_table_file(
@@ -91,7 +81,7 @@ The returned frame is indexed by the original molecule strings. Supported
 inputs: `.csv`, `.tsv`/`.tab`/`.txt`, `.xlsx`, `.pkl`, `.parquet`, and
 `.h5`/`.hdf5`/`.hdf` (the last requires the `[hdf]` extra).
 
-## 5. Command line
+## 4. Command line
 
 ```bash
 npc predict \
@@ -115,13 +105,13 @@ npc predict --model-dir /path/to/model_dir --input molecules.csv --mode official
 ```
 
 `--mode official` applies class 0.1, superclass 0.3, pathway 0.5 and the
-official hierarchical voting; see [official mode](en/official-mode.md).
+official hierarchical voting; see [official mode](04-official-mode.md).
 
 Compatibility aliases are accepted: `--model_dir`, `--input_file`,
 `--tag_column`, `--batch_size`, `--top_k`. The `convert`, `verify` and `doctor`
-subcommands are documented in the [CLI reference](en/cli.md).
+subcommands are documented in the [CLI reference](06-cli.md).
 
-## 6. Output columns
+## 5. Output columns
 
 Column names use the ONNX file stem as the prefix:
 
@@ -135,7 +125,7 @@ superclass_model_prob_1, superclass_model_label_1, ...
 If a model is named `class.onnx` instead of `class_model.onnx`, its columns use
 the `class_` prefix.
 
-## 7. Input notes
+## 6. Input notes
 
 - Strings starting with `InChI` are parsed with RDKit's InChI parser; all other
   strings are treated as SMILES.
@@ -147,9 +137,11 @@ the `class_` prefix.
 - The loader validates that each ONNX output width matches the number of labels
   in `index_v1.json`; a mismatch raises a clear error.
 
-## 8. Runtime notes
+## 7. Runtime notes
 
 ONNX Runtime uses the CPU execution provider by default. `--batch-size` controls
-memory use; there are no published runtime benchmarks, so measure on your own
-machine and input distribution. Fingerprints can be cached by the caller when the
-same molecules are classified repeatedly.
+memory use; runtime depends on your machine and input distribution, so measure
+locally. Fingerprints can be cached by the caller when the same molecules are
+classified repeatedly.
+
+**Next:** [Model conversion](./03-conversion.md)

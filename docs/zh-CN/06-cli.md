@@ -1,6 +1,10 @@
 # 命令行接口
 
-**中文** | [English](../en/cli.md)
+**中文** | [English](../en/06-cli.md) · [返回主页](../../README.md#zh-cn)
+
+**层级：** 3 — 参考
+
+**前置条件：** [快速开始](./02-quickstart.md)。
 
 `npc` 提供四个子命令。旧版的单命令写法仍然兼容，但新脚本建议使用子命令：
 
@@ -68,7 +72,7 @@ npc predict --model-dir /path/to/model_dir --input molecules.csv \
   --mode official --class-threshold 1e-7
 ```
 
-阈值选择应基于本地验证队列；不要把某个模型版本的阈值当作所有版本的官方默认值。详见[官方模式](official-mode.md)。
+阈值选择应基于本地验证队列；不要把某个模型版本的阈值当作所有版本的官方默认值。详见[官方模式](04-official-mode.md)。
 
 ## npc convert
 
@@ -90,7 +94,7 @@ npc convert \
 | `--verify` | 关闭 | 转换后用 ONNX Runtime 试跑 |
 | `--quiet` | 关闭 | 不打印汇总 |
 
-转换器不依赖 TensorFlow，也不下载权重。输出目录中的 `manifest.json` 记录源文件、输出文件的 SHA-256、类别数和 opset。完整流程见[模型转换](conversion.zh.md)。
+转换器不依赖 TensorFlow，也不下载权重。输出目录中的 `manifest.json` 记录源文件、输出文件的 SHA-256、类别数和 opset。完整流程见[模型转换](03-conversion.md)。
 
 ## npc verify
 
@@ -156,3 +160,5 @@ npc --model-dir /path/to/model_dir --input molecules.csv --top-k 3
 ```text
 npc: error: conversion requires the 'convert' extra; install with 'pip install "npclassifier-onnx[convert]"'
 ```
+
+**下一页：** [引用与声明](./07-references.md)

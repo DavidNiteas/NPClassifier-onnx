@@ -1,6 +1,10 @@
 # Python API 参考
 
-**中文** | [English](../en/api.md)
+**中文** | [English](../en/05-api.md) · [返回主页](../../README.md#zh-cn)
+
+**层级：** 3 — 参考
+
+**前置条件：** [快速开始](./02-quickstart.md)。
 
 主入口是 `NPClassifier`。本仓库不分发模型权重；请传入包含 ONNX 文件和
 `index*.json` 标签映射的目录。
@@ -111,3 +115,5 @@ classifier = NPClassifier(
 | `decode_results(results_dict, top_k=1, status=None)` | 解码多个模型并加 `status` |
 
 `top_k` 必须为正，且不能超过模型的类别数。
+
+**下一页：** [命令行接口](./06-cli.md)

@@ -1,5 +1,11 @@
 # 模型转换
 
+**中文** | [English](../en/03-conversion.md) · [返回主页](../../README.md#zh-cn)
+
+**层级：** 2 — 使用
+
+**前置条件：** [安装](./01-installation.md)、[快速开始](./02-quickstart.md)。
+
 本项目**不分发** NPClassifier 模型权重。它提供一条本地、可复现的路径，把官方
 Keras HDF5 模型转换成推理所需的 ONNX 文件。
 
@@ -131,3 +137,5 @@ batch 维保持动态。
 ONNX 文件较大（每个约 250 MiB），已被 `.gitignore` 忽略，不会进入 wheel 或
 源码分发包。生成的 ONNX 文件仍受官方模型权重的 CC0 条款约束；再分发转换结果
 时请保留上游署名。
+
+**下一页：** [官方模式](./04-official-mode.md)

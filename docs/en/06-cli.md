@@ -1,6 +1,10 @@
 # Command-line interface
 
-[中文](../zh/cli.md) | **English**
+[中文](../zh-CN/06-cli.md) | **English** · [Documentation home](../../README.md#english)
+
+**Level:** 3 — Reference
+
+**Prerequisites:** [Quickstart](./02-quickstart.md).
 
 `npc` provides four subcommands. The historical single-command form is still
 accepted, but new scripts should use subcommands:
@@ -75,7 +79,7 @@ npc predict --model-dir /path/to/model_dir --input molecules.csv \
 
 Calibrate an override on a local validation cohort; do not present one model
 release's threshold as the official default for every release. See
-[official mode](official-mode.md).
+[official mode](04-official-mode.md).
 
 ## npc convert
 
@@ -99,7 +103,7 @@ npc convert \
 
 The converter does not require TensorFlow and does not download weights.
 `manifest.json` records source/output SHA-256 checksums, class counts and the
-opset. See the [conversion guide](conversion.md) for the complete workflow.
+opset. See the [conversion guide](03-conversion.md) for the complete workflow.
 
 ## npc verify
 
@@ -173,3 +177,5 @@ Errors go to stderr, for example:
 ```text
 npc: error: conversion requires the 'convert' extra; install with 'pip install "npclassifier-onnx[convert]"'
 ```
+
+**Next:** [References and notices](./07-references.md)

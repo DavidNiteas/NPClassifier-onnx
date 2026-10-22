@@ -1,6 +1,10 @@
 # Python API reference
 
-[中文](../zh/api.md) | **English**
+[中文](../zh-CN/05-api.md) | **English** · [Documentation home](../../README.md#english)
+
+**Level:** 3 — Reference
+
+**Prerequisites:** [Quickstart](./02-quickstart.md).
 
 The main entry point is `NPClassifier`. Model weights are never bundled; pass a
 directory containing ONNX files and an `index*.json` label mapping.
@@ -116,3 +120,5 @@ on a local validation cohort.
 | `decode_results(results_dict, top_k=1, status=None)` | Decode multiple models and add `status` |
 
 `top_k` must be positive and no larger than the model's class count.
+
+**Next:** [Command-line interface](./06-cli.md)

@@ -1,34 +1,14 @@
-# NPClassifier-onnx documentation
+# NPClassifier-onnx docs
 
-[中文](README.zh.md) · [Project README](../README.md)
+**Languages:** [English](./en/index.md) · [简体中文](./zh-CN/index.md)
 
-`NPClassifier-onnx` runs [NPClassifier](https://github.com/mwang87/NP-Classifier)
-inference with ONNX Runtime. It preserves the official Morgan-count fingerprint
-definition and class/pathway/superclass decoding while removing the TensorFlow
-serving dependency.
+The docs go from first run to reference:
 
-This repository contains **inference code and a reproducible HDF5-to-ONNX
-converter**, not model weights. ONNX files are generated locally from the
-official Keras models and are not committed, packaged or distributed here.
+1. **Scope** — why the repository ships code only.
+2. **Start** — install and run the smallest example.
+3. **Use** — model conversion, official decision logic, Python API, CLI.
+4. **Reference** — upstream attribution, citation and licenses.
 
-## Documentation
+The repository contains inference code and a local HDF5-to-ONNX converter. It does not ship NPClassifier weights, ONNX files or `index_v1.json`.
 
-| Page | What you will find |
-| --- | --- |
-| [Quick start](quickstart.md) | Install, model directory, Python API, CLI |
-| [Official mode](en/official-mode.md) | Sigmoid outputs, official thresholds, voting |
-| [Conversion](conversion.md) | HDF5-to-ONNX workflow, manifest, parity check |
-| [Python API](en/api.md) | `NPClassifier` methods and score semantics |
-| [CLI reference](en/cli.md) | `predict`, `convert`, `verify`, `doctor` |
-| [References and notices](en/references.md) | Upstream repo, citation, licenses, non-official notice |
-
-中文文档：[总览](README.zh.md) · [快速开始](quickstart.zh.md) ·
-[官方模式](zh/official-mode.md) · [模型转换](conversion.zh.md) ·
-[Python API](zh/api.md) · [命令行接口](zh/cli.md) · [引用与声明](zh/references.md)
-
-## Scope and license
-
-The wrapper code is MIT licensed. NPClassifier is MIT licensed; the official
-models, data and ontology are CC0. This project is not the official NPClassifier
-release. See [References and notices](en/references.md) and the upstream
-[repository](https://github.com/mwang87/NP-Classifier).
+Working with an AI assistant? Hand it [`AGENTS.md`](../AGENTS.md).

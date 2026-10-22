@@ -1,22 +1,12 @@
 # 快速开始
 
-## 1. 安装
+**中文** | [English](../en/02-quickstart.md) · [返回主页](../../README.md#zh-cn)
 
-在仓库根目录执行：
+**层级：** 1 — 开始
 
-```bash
-pip install .
-```
+**前置条件：** [安装](./01-installation.md)。
 
-可选依赖：
-
-```bash
-pip install ".[excel]"     # xlsx 读写
-pip install ".[hdf]"       # HDF5 表格输入
-pip install ".[convert]"   # HDF5 -> ONNX 转换
-```
-
-## 2. 准备模型目录
+## 1. 准备模型目录
 
 推理从一个目录读取 ONNX 模型和标签映射：
 
@@ -29,10 +19,10 @@ model_dir/
 ```
 
 只需要放实际使用的模型。标签映射是 NPClassifier 源码树中的
-`index_v1.json`。模型权重不属于本包；请按照[模型转换指南](conversion.zh.md)
+`index_v1.json`。模型权重不属于本包；请按照[模型转换指南](03-conversion.md)
 在本地生成 ONNX 文件。
 
-## 3. Python API
+## 2. Python API
 
 ```python
 from NPClassifier_onnx import NPClassifier
@@ -74,7 +64,7 @@ frame = classifier.batch_predict_and_decode(["CCO"], top_k=5)
 
 `top_k` 不能超过所选模型的类别数。
 
-## 4. 从表格预测
+## 3. 从表格预测
 
 ```python
 frame = classifier.predict_from_table_file(
@@ -89,7 +79,7 @@ frame.to_csv("results.csv")
 返回表的索引是原始分子字符串。支持 `.csv`、`.tsv`/`.tab`/`.txt`、`.xlsx`、
 `.pkl`、`.parquet`，以及 `.h5`/`.hdf5`/`.hdf`（需要 `[hdf]` 额外依赖）。
 
-## 5. 命令行
+## 4. 命令行
 
 ```bash
 npc predict \
@@ -112,12 +102,12 @@ npc predict --model-dir /path/to/model_dir --input molecules.csv --mode official
 ```
 
 `--mode official` 使用 class 0.1、superclass 0.3、pathway 0.5，并执行官方层级
-投票；详见[官方模式](zh/official-mode.md)。
+投票；详见[官方模式](04-official-mode.md)。
 
 同时兼容 `--model_dir`、`--input_file`、`--tag_column`、`--batch_size`、
-`--top_k` 等旧写法。`convert`、`verify`、`doctor` 子命令见[命令行接口](zh/cli.md)。
+`--top_k` 等旧写法。`convert`、`verify`、`doctor` 子命令见[命令行接口](06-cli.md)。
 
-## 6. 输出列
+## 5. 输出列
 
 列名以 ONNX 文件名主干为前缀：
 
@@ -130,7 +120,7 @@ superclass_model_prob_1, superclass_model_label_1, ...
 
 如果模型文件叫 `class.onnx` 而不是 `class_model.onnx`，列前缀就是 `class_`。
 
-## 7. 输入说明
+## 6. 输入说明
 
 - 以 `InChI` 开头的字符串使用 RDKit 的 InChI 解析器，其余按 SMILES 解析。
 - 指纹计算前会显式加氢，与官方 NPClassifier 实现一致。
@@ -139,8 +129,8 @@ superclass_model_prob_1, superclass_model_label_1, ...
 - 加载器会校验 ONNX 输出宽度与 `index_v1.json` 的标签数；不一致时会给出
   明确错误。
 
-## 8. 运行时说明
+## 7. 运行时说明
 
-ONNX Runtime 默认使用 CPU。`--batch-size` 影响内存占用；公开文档不提供运行时
-基准，请在本地机器和输入分布上自行测量。同一批分子需要重复分类时，可以缓存
-指纹。
+ONNX Runtime 默认使用 CPU。`--batch-size` 影响内存占用；具体耗时取决于机器与输入分布，请在本机测量。同一批分子需要重复分类时，可以缓存指纹。
+
+**下一页：** [模型转换](./03-conversion.md)

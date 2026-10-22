@@ -1,6 +1,10 @@
 # References and notices
 
-[中文](../zh/references.md) | **English**
+[中文](../zh-CN/07-references.md) | **English** · [Documentation home](../../README.md#english)
+
+**Level:** 3 — Reference
+
+**Prerequisites:** [Official mode](./04-official-mode.md).
 
 ## Relationship to official NPClassifier
 
@@ -48,3 +52,5 @@ original paper:
   distribute those weights or data. ONNX files are generated locally by users
   from the official HDF5 files; follow the source terms and keep upstream
   attribution when redistributing a conversion.
+
+**Next:** [Why code-only](./08-why-code-only.md)

@@ -18,8 +18,8 @@ python verify_parity.py \
   --model-dir /path/to/model_dir
 ```
 
-See [docs/conversion.md](../../docs/conversion.md) and
-[中文转换指南](../../docs/conversion.zh.md) for the full guide.
+See [docs/en/03-conversion.md](../../docs/en/03-conversion.md) and
+[中文转换指南](../../docs/zh-CN/03-conversion.md) for the full guide.
 
 The tools do not download or redistribute model weights. Output ONNX files are
 ignored by Git and are not part of release artifacts.

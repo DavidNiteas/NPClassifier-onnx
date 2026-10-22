@@ -8,9 +8,8 @@ version = "0.3.1"
 description = "ONNX Runtime inference for NPClassifier, with a reproducible HDF5-to-ONNX converter"
 readme = "README.md"
 requires-python = ">=3.9"
-license = { text = "MIT" }
+license = { file = "LICENSE" }
 authors = [{ name = "David Niteas", email = "david.ql.d@foxmail.com" }]
-maintainers = [{ name = "David Niteas", email = "david.ql.d@foxmail.com" }]
 keywords = [
     "chemistry",
     "machine learning",
@@ -47,6 +46,7 @@ convert = [
 excel = ["openpyxl>=3.0"]
 hdf = ["tables>=3.8"]
 dev = [
+    "build>=1.2",
     "pytest>=7",
     "h5py>=3.8",
     "onnx>=1.15",
@@ -74,6 +74,11 @@ include = [
     "/LICENSE",
     "/README.md",
     "/pyproject.toml",
+    "/AGENTS.md",
+    "/AUTHORS",
+    "/NOTICE",
+    "/CITATION.cff",
+    "/Makefile",
 ]
 exclude = [
     "**/__pycache__",

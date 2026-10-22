@@ -1,6 +1,10 @@
 # Official NPClassifier mode
 
-[中文](../zh/official-mode.md) | **English**
+[中文](../zh-CN/04-official-mode.md) | **English** · [Documentation home](../../README.md#english)
+
+**Level:** 2 — Use
+
+**Prerequisites:** [Quickstart](./02-quickstart.md).
 
 The default `scores` mode returns raw per-class probabilities. The `official`
 mode reproduces the decision logic used by the official NPClassifier web
@@ -95,3 +99,5 @@ value; do not present a V1-specific threshold as the official V25 default.
 
 Thresholds and voting will match the official code; exact probabilities and
 result lists can differ when the underlying weights differ.
+
+**Next:** [Python API reference](./05-api.md)

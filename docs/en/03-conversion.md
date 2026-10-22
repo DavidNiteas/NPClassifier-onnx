@@ -1,5 +1,11 @@
 # Model conversion
 
+[中文](../zh-CN/03-conversion.md) | **English** · [Documentation home](../../README.md#english)
+
+**Level:** 2 — Use
+
+**Prerequisites:** [Installation](./01-installation.md), [Quickstart](./02-quickstart.md).
+
 This project does **not** distribute NPClassifier model weights. It provides a
 local, reproducible path from the official Keras HDF5 models to the ONNX files
 used by this package.
@@ -143,3 +149,5 @@ ONNX files are large (roughly 250 MiB per model). They are ignored by
 `.gitignore` and are not included in wheels or source distributions. Generated
 ONNX files remain subject to the CC0 terms of the official model weights; keep
 the upstream attribution when redistributing a conversion.
+
+**Next:** [Official NPClassifier mode](./04-official-mode.md)

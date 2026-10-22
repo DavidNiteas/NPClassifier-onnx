@@ -1,11 +1,29 @@
 # Changelog
 
+All notable changes to this project are documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Changed
+
+- Restructured documentation into numbered `docs/{en,zh-CN}/` pages with a docs
+  hub, language indexes and Level/Prerequisites/Next metadata.
+- Added `AGENTS.md`, `AUTHORS`, `NOTICE`, `CITATION.cff` and `Makefile`.
+- README is now English-first with a Chinese section; the NPClassifier paper
+  citation is included in README and `CITATION.cff`.
+- Removed the maintainer metadata; the package lists David Niteas as author.
+- Package metadata now points to the LICENSE file and includes the new release
+  files in the sdist.
+
 ## [0.3.1] - 2026-10-22
 
 ### Changed
 
-- Set the wrapper author/maintainer to David Niteas and update the license
-  copyright notice. Upstream attribution and licensing are unchanged.
+- Set the wrapper author to David Niteas and update the license copyright
+  notice. Upstream attribution and licensing are unchanged.
 
 ## [0.3.0] - 2026-10-21
 

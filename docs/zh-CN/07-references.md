@@ -1,6 +1,10 @@
 # 引用与声明
 
-**中文** | [English](../en/references.md)
+**中文** | [English](../en/07-references.md) · [返回主页](../../README.md#zh-cn)
+
+**层级：** 3 — 参考
+
+**前置条件：** [官方模式](./04-official-mode.md)。
 
 ## 本项目与官方 NPClassifier 的关系
 
@@ -37,3 +41,5 @@
 - 本项目的包装与推理代码使用 **MIT License**，完整文本见仓库根目录的 [`LICENSE`](../../LICENSE)。
 - 上游 [NPClassifier](https://github.com/mwang87/NP-Classifier) 软件使用 MIT License。
 - 官方模型、数据与 ontology 使用 **CC0**。本仓库不分发这些权重或数据；转换得到的 ONNX 文件由用户自行从官方 HDF5 生成，再分发时请遵守其来源页面的条款并保留上游署名。
+
+**下一页：** [为什么只发代码](./08-why-code-only.md)
